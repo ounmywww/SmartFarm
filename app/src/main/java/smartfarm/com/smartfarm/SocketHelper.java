@@ -17,9 +17,12 @@ public class SocketHelper extends Thread{
     OutputStream output;
     InputStream input;
     PrintWriter writer;
+    int byteCount = 0;
+    byte[] byteArr = new byte[1024];
+    int iOutput = 0;
 
     public SocketHelper(){
-        this.hostname = "172.30.1.18";
+        this.hostname = "172.30.1.57";
         this.port = 9000;
     }
 
@@ -68,11 +71,62 @@ public class SocketHelper extends Thread{
         catch(IOException ex){
             System.out.println("I/O Err: " + ex.getMessage());
         }catch(Exception ex){
-            System.out.println("Exceptio: " + ex.getMessage());
+            System.out.println("Exception: " + ex.getMessage());
         }
     }
 
     public void sendMassage(String s){
         writer.println(s);
     }
+
+    public byte[] getMassage(){
+        new Thread(){
+            public void run(){
+                try{
+
+                    try{
+                        Thread.sleep(100);
+                    }catch (Exception ex){
+
+                    }
+
+                    byteCount = input.read(byteArr);
+
+                }
+                catch (Exception ex){
+                    System.out.println("Exception: " + ex.getMessage());
+                }
+            }
+        }.start();
+
+        return byteArr;
+    }
+
+    public int getMassageInt(){
+        new Thread(){
+            public void run(){
+                try{
+
+                    try{
+                        Thread.sleep(100);
+                    }catch (Exception ex){
+
+                    }
+
+                    while(true) {
+                        iOutput = input.read();
+
+                        if(iOutput != 0) break;
+                    }
+
+                }
+                catch (Exception ex){
+                    System.out.println("Exception: " + ex.getMessage());
+                }
+            }
+        }.start();
+
+        return iOutput;
+    }
 }
+
