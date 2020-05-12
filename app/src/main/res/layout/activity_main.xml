@@ -10,53 +10,138 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="smartfarm.com.smartfarm.MainActivity">
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height= "match_parent"
-        android:orientation="horizontal"
-        android:layout_weight="10"
-        >
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="2"
-            android:text="현재 온도 : %d\n현재 습도 : %d"
-            android:textSize="20dp"
-            android:gravity="center"
-            android:id="@+id/TvTemp"
-            />
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="8"
-            android:text="기준정보 설정"
-            android:textSize="10dp"
-            android:id="@+id/ButtonSetGts"
-            android:gravity="center" />
-
-    </LinearLayout>
-    <LinearLayout
+    <TabHost
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="2"
-        android:orientation="vertical">
-        <Button
+        android:id="@+id/tabHost1">
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="열림"
-            android:textSize="30dp"
-            android:id="@+id/ButtonOpen"
-            android:onClick="onButtonClick"/>
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="닫힘"
-            android:textSize="30dp"
-            android:id="@+id/ButtonClose"
-            android:onClick="onButtonClick"/>
-    </LinearLayout>
+            android:orientation="vertical">
+            <TabWidget
+                android:id="@android:id/tabs"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="100">
+            </TabWidget>
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@android:id/tabcontent"
+                android:layout_weight="4">
+                <!-- 첫 번째 페이지 -->
+                <LinearLayout
+                    android:id="@+id/content1"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
 
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height= "match_parent"
+                        android:orientation="horizontal"
+                        android:layout_weight="10"
+                        >
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_weight="2"
+                            android:orientation="vertical">
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_weight="2"
+                                android:text="현재 온도 : %d"
+                                android:textSize="20dp"
+                                android:gravity="center"
+                                android:id="@+id/tvCal"/>
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_weight="2"
+                                android:text="현재 습도 : %d"
+                                android:textSize="20dp"
+                                android:gravity="center"
+                                android:id="@+id/tvWater"/>
+                        </LinearLayout>
+                        <ImageView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_weight="8"
+                            android:id="@+id/imgDoor"
+                            android:gravity="center" />
+                    </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="2"
+                        android:orientation="vertical">
+                        <Button
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:text="열림"
+                            android:textSize="30dp"
+                            android:id="@+id/ButtonOpen"
+                            android:onClick="onButtonClick"/>
+                        <Button
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:text="정지"
+                            android:textSize="30dp"
+                            android:id="@+id/ButtonStop"
+                            android:onClick="onButtonClick"/>
+                        <Button
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:text="닫힘"
+                            android:textSize="30dp"
+                            android:id="@+id/ButtonClose"
+                            android:onClick="onButtonClick"/>
+                    </LinearLayout>
+                </LinearLayout>
+                <!-- 두 번째 페이지. content2 -->
+                <LinearLayout
+                    android:id="@+id/content2"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                </LinearLayout>
+                <!-- 세 번째 페이지. content3 -->
+                <LinearLayout
+                    android:id="@+id/content3"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="5"
+                        android:text="기준 온도 입력"
+                        android:textSize="30dp"
+                        android:gravity="center"
+                        />
+                    <NumberPicker
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="30dp"
+                        android:layout_marginRight="30dp"
+                        android:layout_weight="2"
+                        android:gravity="center"
+                        android:id="@+id/npCal"
+                        >
+
+                    </NumberPicker>
+                    <Button
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="5"
+                        android:text="저장"/>
+                </LinearLayout>
+            </FrameLayout>
+        </LinearLayout>
+    </TabHost>
 </LinearLayout>
