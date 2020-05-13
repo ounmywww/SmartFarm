@@ -34,7 +34,8 @@
                     android:id="@+id/content1"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:layout_marginTop="20dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -107,15 +108,47 @@
                     android:id="@+id/content2"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:layout_marginTop="20dp">
 
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="10"
+                        android:orientation="horizontal">
+                        <DatePicker
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_weight="2"
+                            android:datePickerMode="spinner"
+                            android:calendarViewShown="false"
+
+                            >
+                        </DatePicker>
+                        <Button
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_weight="8"
+                            android:text="조회"
+                            android:onClick="onFindButtonClick"
+                            android:id="@+id/drawChartStart"
+                            />
+                    </LinearLayout>
+                    <com.github.mikephil.charting.charts.LineChart
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="2"
+                        android:id="@+id/chart"
+                        android:visibility="invisible"
+                        />
                 </LinearLayout>
                 <!-- 세 번째 페이지. content3 -->
                 <LinearLayout
                     android:id="@+id/content3"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:layout_marginTop="20dp">
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
@@ -133,7 +166,6 @@
                         android:gravity="center"
                         android:id="@+id/npCal"
                         >
-
                     </NumberPicker>
                     <Button
                         android:layout_width="match_parent"

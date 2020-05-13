@@ -83,15 +83,15 @@ public class SocketHelper extends Thread{
         new Thread(){
             public void run(){
                 try{
-
+                    // For Sleep 0.1 Sec
                     try{
                         Thread.sleep(100);
                     }catch (Exception ex){
 
                     }
 
-                    byteCount = input.read(byteArr);
 
+                    byteCount = input.read(byteArr);
                 }
                 catch (Exception ex){
                     System.out.println("Exception: " + ex.getMessage());

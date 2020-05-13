@@ -5,6 +5,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.*;
 
+import com.github.mikephil.charting.charts.LineChart;
+
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity {
 
     private SocketHelper sh;
@@ -14,9 +18,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         sh = new SocketHelper();
-        sh.start();
+        sh.start(); // 여기서 연결 안된채 밑으로 내려가서 0이 떴던거임....
 
         setTabText();
+        setNumPicker();
 
         getTemperThread();
     }
@@ -26,10 +31,35 @@ public class MainActivity extends AppCompatActivity {
             case R.id.ButtonOpen :
                 sh.sendMassage("Open");
                 break ;
+            case R.id.ButtonStop:
+                sh.sendMassage("Stop");
+                break;
             case R.id.ButtonClose :
                 sh.sendMassage("Close");
                 break ;
         }
+    }
+
+    public void onFindButtonClick(View view){
+        GraphHelper gh = new GraphHelper((LineChart)findViewById(R.id.chart));
+        ArrayList<Pair<Float, Float>> arr = new ArrayList<Pair<Float, Float>>();
+
+        gh.setMaxLimitLine(4);
+        gh.setMinLimitLine(3);
+
+        arr.add(new Pair(0f, 1f));
+        arr.add(new Pair(1f, 2f));
+        arr.add(new Pair(2f, 3f));
+        arr.add(new Pair(3f, 10f));
+        arr.add(new Pair(4f, 6f));
+        arr.add(new Pair(5f, 2f));
+        arr.add(new Pair(6f, 7f));
+
+        gh.addEntrys(arr);
+        gh.drawChart();
+
+        LineChart lc = (LineChart)findViewById(R.id.chart);
+        lc.setVisibility(View.VISIBLE);
     }
 
     public int byteArrayToInt(byte [] b, int startIndex) {
