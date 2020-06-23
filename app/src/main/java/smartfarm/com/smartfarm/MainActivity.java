@@ -8,108 +8,48 @@ import android.widget.*;
 import com.github.mikephil.charting.charts.LineChart;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity {
 
-    private SocketHelper sh;
+    private String hostName = "222.111.78.166";
+    private DbHelper dbHelper;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        sh = new SocketHelper();
-        sh.start(); // 여기서 연결 안된채 밑으로 내려가서 0이 떴던거임....
+        dbHelper = new DbHelper(hostName);
 
         setTabText();
         setNumPicker();
-
-        getTemperThread();
     }
 
     public void onButtonClick(View view){
         switch (view.getId()) {
             case R.id.ButtonOpen :
-                sh.sendMassage("Open");
                 break ;
-            case R.id.ButtonStop:
-                sh.sendMassage("Stop");
+            case R.id.ButtonAuto:
                 break;
             case R.id.ButtonClose :
-                sh.sendMassage("Close");
                 break ;
         }
     }
 
     public void onFindButtonClick(View view){
         GraphHelper gh = new GraphHelper((LineChart)findViewById(R.id.chart));
-        ArrayList<Pair<Float, Float>> arr = new ArrayList<Pair<Float, Float>>();
+
+        dbHelper.execute("get","Temp");
 
         gh.setMaxLimitLine(4);
         gh.setMinLimitLine(3);
 
-        arr.add(new Pair(0f, 1f));
-        arr.add(new Pair(1f, 2f));
-        arr.add(new Pair(2f, 3f));
-        arr.add(new Pair(3f, 10f));
-        arr.add(new Pair(4f, 6f));
-        arr.add(new Pair(5f, 2f));
-        arr.add(new Pair(6f, 7f));
-
-        gh.addEntrys(arr);
+        gh.addEntrys(dbHelper.mTempList);
         gh.drawChart();
 
         LineChart lc = (LineChart)findViewById(R.id.chart);
         lc.setVisibility(View.VISIBLE);
-    }
-
-    public int byteArrayToInt(byte [] b, int startIndex) {
-        int n1 = (b[startIndex    ] & 0xFF);
-        int n2 = (b[startIndex + 1] & 0xFF) <<  8;
-        int n3 = (b[startIndex + 2] & 0xFF) << 16;
-        int n4 = (b[startIndex + 3] & 0xFF) << 24;
-
-        System.out.println("n1 = " + n1 + " n2 = " + n2 + " n3 = "+ n3 + " n4 = " + n4);
-
-        return n1 + n2 + n3 + n4;
-    }
-
-    public void getTemperThread(){
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                // runOnUiThread를 추가하고 그 안에 UI작업을 한다.
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try{
-                            Thread.sleep(1000);
-                        }catch (Exception ex){
-
-                        }
-
-                        byte[] bytes = sh.getMassage();
-
-                        int n1 = byteArrayToInt(bytes,  0);
-                        int n2 = byteArrayToInt(bytes,  4);
-                        int n3 = byteArrayToInt(bytes,  8);
-                        int n4 = byteArrayToInt(bytes, 12);
-
-                        /*int n1 = sh.getMassageInt();
-                        int n2 = sh.getMassageInt();
-                        int n3 = sh.getMassageInt();
-                        int n4 = sh.getMassageInt();*/
-
-                        System.out.println("n = " + n1);
-
-                        TextView tvCal   = (TextView)findViewById(R.id.tvCal);
-                        TextView tvWater = (TextView)findViewById(R.id.tvWater);
-
-                        tvCal.setText(  "현재 습도 : " + Integer.toString(n1) + "." + Integer.toString(n2));
-                        tvWater.setText("현재 온도 : " + Integer.toString(n3) + "." + Integer.toString(n4));
-                    }
-                });
-            }
-        }).start();
     }
 
     public void setTabText(){
@@ -136,9 +76,50 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void setNumPicker(){
-        NumberPicker npCal = (NumberPicker) findViewById(R.id.npCal);
+        Calendar calendar = Calendar.getInstance();
+        int cYear = calendar.get(Calendar.YEAR);
+        int cMonth = calendar.get(Calendar.MONTH);
+        int cDay = calendar.get(Calendar.DAY_OF_MONTH);
 
-        npCal.setMinValue(0);
-        npCal.setMinValue(50);
+        /* SET MAX */
+        NumberPicker npMax = (NumberPicker) findViewById(R.id.numPickMax);
+        npMax.setMinValue(1);
+        npMax.setMaxValue(50);
+        npMax.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+        npMax.setWrapSelectorWheel(false);
+        npMax.setValue(23);
+
+        /* SET MIN*/
+        NumberPicker npMin = (NumberPicker) findViewById(R.id.numPickMin);
+        npMin.setMinValue(1);
+        npMin.setMaxValue(50);
+        npMin.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+        npMin.setWrapSelectorWheel(false);
+        npMin.setValue(23);
+
+        /* SET YEAR */
+        NumberPicker npYear = (NumberPicker) findViewById(R.id.numPickYear);
+        npYear.setMaxValue(cYear+10);
+        npYear.setMinValue(cYear-70);
+        npYear.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+        npYear.setWrapSelectorWheel(false);
+        npYear.setValue(cYear);
+
+        /* SET MON */
+        NumberPicker npMon = (NumberPicker) findViewById(R.id.numPickMon);
+        npMon.setMaxValue(12);
+        npMon.setMinValue(1);
+        npMon.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+        npMon.setWrapSelectorWheel(false);
+        npMon.setValue(cMonth);
+
+        /* SET DAY */
+        NumberPicker npDay = (NumberPicker) findViewById(R.id.numPickDay);
+        npDay.setMinValue(1);
+        npDay.setMaxValue(31);
+        npDay.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+        npDay.setWrapSelectorWheel(false);
+        npDay.setValue(cDay);
+
     }
 }

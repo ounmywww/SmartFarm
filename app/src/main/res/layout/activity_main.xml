@@ -89,9 +89,9 @@
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:layout_weight="1"
-                            android:text="정지"
+                            android:text="자동"
                             android:textSize="30dp"
-                            android:id="@+id/ButtonStop"
+                            android:id="@+id/ButtonAuto"
                             android:onClick="onButtonClick"/>
                         <Button
                             android:layout_width="match_parent"
@@ -116,15 +116,36 @@
                         android:layout_height="match_parent"
                         android:layout_weight="10"
                         android:orientation="horizontal">
-                        <DatePicker
+                        <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:layout_weight="2"
-                            android:datePickerMode="spinner"
-                            android:calendarViewShown="false"
-
-                            >
-                        </DatePicker>
+                            android:orientation="horizontal"
+                            android:layout_weight="2">
+                            <NumberPicker
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+                                android:layout_marginLeft="10dp"
+                                android:layout_marginRight="10dp"
+                                android:id="@+id/numPickYear">
+                            </NumberPicker>
+                            <NumberPicker
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+                                android:layout_marginLeft="10dp"
+                                android:layout_marginRight="10dp"
+                                android:id="@+id/numPickMon">
+                            </NumberPicker>
+                            <NumberPicker
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+                                android:layout_marginLeft="10dp"
+                                android:layout_marginRight="10dp"
+                                android:id="@+id/numPickDay">
+                            </NumberPicker>
+                        </LinearLayout>
                         <Button
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
@@ -152,26 +173,77 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:layout_weight="5"
+                        android:layout_weight="7"
                         android:text="기준 온도 입력"
                         android:textSize="30dp"
                         android:gravity="center"
                         />
-                    <NumberPicker
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_marginLeft="30dp"
-                        android:layout_marginRight="30dp"
-                        android:layout_weight="2"
-                        android:gravity="center"
-                        android:id="@+id/npCal"
-                        >
-                    </NumberPicker>
-                    <Button
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_weight="5"
-                        android:text="저장"/>
+                        android:layout_marginTop="20dp"
+                        android:layout_marginBottom="20dp"
+                        android:orientation="horizontal">
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_weight="5"
+                            android:text="최소\n온도"
+                            android:textSize="20dp"
+                            android:gravity="center"
+                            />
+                        <NumberPicker
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginLeft="30dp"
+                            android:layout_marginRight="30dp"
+                            android:layout_marginTop="10dp"
+                            android:layout_marginBottom="10dp"
+                            android:layout_weight="2"
+                            android:id="@+id/numPickMin"
+                            >
+                        </NumberPicker>
+                        <Button
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_weight="5"
+                            android:height="40dp"
+                            android:text="저장"/>
+                    </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="5"
+                        android:layout_marginTop="20dp"
+                        android:layout_marginBottom="20dp"
+                        android:orientation="horizontal">
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_weight="5"
+                            android:text="최대\n온도"
+                            android:textSize="20dp"
+                            android:gravity="center"
+                            />
+                        <NumberPicker
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginLeft="30dp"
+                            android:layout_marginRight="30dp"
+                            android:layout_marginTop="10dp"
+                            android:layout_marginBottom="10dp"
+                            android:layout_weight="2"
+                            android:id="@+id/numPickMax"
+                            >
+                        </NumberPicker>
+                        <Button
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_weight="5"
+                            android:height="40dp"
+                            android:text="저장"/>
+                    </LinearLayout>
                 </LinearLayout>
             </FrameLayout>
         </LinearLayout>
