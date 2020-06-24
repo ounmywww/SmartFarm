@@ -39,13 +39,23 @@ public class MainActivity extends AppCompatActivity {
 
     public void onFindButtonClick(View view){
         GraphHelper gh = new GraphHelper((LineChart)findViewById(R.id.chart));
+        ArrayList<Pair<Float, Float>> arr = new ArrayList<Pair<Float, Float>>();
 
         dbHelper.execute("get","Temp");
 
         gh.setMaxLimitLine(4);
         gh.setMinLimitLine(3);
 
-        gh.addEntrys(dbHelper.mTempList);
+        arr.add(new Pair(0f, 1f));
+        arr.add(new Pair(1f, 2f));
+        arr.add(new Pair(2f, 3f));
+        arr.add(new Pair(3f, 10f));
+        arr.add(new Pair(4f, 6f));
+        arr.add(new Pair(5f, 2f));
+        arr.add(new Pair(6f, 7f));
+
+        // gh.addEntrys(dbHelper.mTempList);
+        gh.addEntrys(arr);
         gh.drawChart();
 
         LineChart lc = (LineChart)findViewById(R.id.chart);
