@@ -58,6 +58,7 @@ public class GraphHelper {
 
     /* 온도 데이터들 모임 */
     public void addEntrys(ArrayList<Pair<Float, Float>> arrayList){
+        entries.clear();
         this.arrayList = arrayList;
 
         try {
@@ -72,6 +73,7 @@ public class GraphHelper {
     }
 
     public void drawChart(){
+        lineChart.clear();
         setChart();
 
         lineData = new LineData(lineDataSet);

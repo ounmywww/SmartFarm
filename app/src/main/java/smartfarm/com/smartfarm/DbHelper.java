@@ -23,9 +23,15 @@ import java.util.ArrayList;
 public class DbHelper extends AsyncTask<String, Void, String>{
     private static String TAG = "phptest";
     private String mJsonString;
+
     public ArrayList<Pair<Float, Float>> mTempList;
     public ArrayList<Pair<Float, Float>> mHumidityList;
-    public ArrayList<Pair<Float, String>> mOpenList;
+    public ArrayList<Pair<Float, Integer>> mOpenList;
+
+    public float recentTemp;
+    public float recentHumidity;
+
+    public String recentAutoYn;
 
     String serverURL = "";
     String postParameters = "";
@@ -35,6 +41,10 @@ public class DbHelper extends AsyncTask<String, Void, String>{
     DbHelper(String hostUrl){
         serverURL = new String();
         postParameters = new String();
+
+        mTempList = new ArrayList<Pair<Float, Float>>();
+        mHumidityList = new ArrayList<Pair<Float, Float>>();
+        mOpenList = new ArrayList<Pair<Float, Integer>>();
 
         this.serverURL = hostUrl;
     }
@@ -107,13 +117,17 @@ public class DbHelper extends AsyncTask<String, Void, String>{
 
     private void makeArray(String data){
 
+        mTempList.clear();
+        mHumidityList.clear();
+        mOpenList.clear();
+
         // 온도 데이터 가져오기
         if(data.equals("Temp")) {
             String TAG_JSON = "webnautes";
-            String TAG_TIMEKEY = "TIMEKEY";
+            String TAG_HOURS = "HOURS";
             String TAG_TEMP = "TEMP";
             String TAG_HUMIDITY = "HUMIDITY";
-            String TAG_OPEN_YN = "OPEN_YN";
+            String TAG_CNT_OPEN = "CNT_OPEN";
 
 
             try {
@@ -124,14 +138,80 @@ public class DbHelper extends AsyncTask<String, Void, String>{
 
                     JSONObject item = jsonArray.getJSONObject(i);
 
-                    Float timekey = Float.parseFloat(item.getString(TAG_TIMEKEY).toString());
+                    Float hours = Float.parseFloat(item.getString(TAG_HOURS).toString());
                     Float temp = Float.parseFloat(item.getString(TAG_TEMP));
                     Float humidity = Float.parseFloat(item.getString(TAG_HUMIDITY));
-                    String openYn = item.getString(TAG_OPEN_YN);
+                    Integer cntOpen = Integer.parseInt(item.getString(TAG_CNT_OPEN));
 
-                    mTempList.add(new Pair<Float, Float>(timekey, temp));
-                    mHumidityList.add(new Pair<Float, Float>(timekey, humidity));
-                    mOpenList.add(new Pair<Float, String>(timekey, openYn));
+                    mTempList.add(new Pair<Float, Float>(hours, temp));
+                    mHumidityList.add(new Pair<Float, Float>(hours, humidity));
+                    mOpenList.add(new Pair<Float, Integer>(hours, cntOpen));
+                }
+
+            } catch (JSONException e) {
+
+                Log.d(TAG, "showResult : ", e);
+            }
+        }
+        else if(data.equals("RecentTemp")){
+            String TAG_JSON = "webnautes";
+            String TAG_TEMP = "TEMP";
+
+            try {
+                JSONObject jsonObject = new JSONObject(mJsonString);
+                JSONArray jsonArray = jsonObject.getJSONArray(TAG_JSON);
+
+                for (int i = 0; i < jsonArray.length(); i++) {
+
+                    JSONObject item = jsonArray.getJSONObject(i);
+
+                    Float temp = Float.parseFloat(item.getString(TAG_TEMP));
+
+                    recentTemp = temp;
+                }
+
+            } catch (JSONException e) {
+
+                Log.d(TAG, "showResult : ", e);
+            }
+        }
+        else if(data.equals("RecentHum")){
+            String TAG_JSON = "webnautes";
+            String TAG_HUMIDITY = "Humidity";
+
+            try {
+                JSONObject jsonObject = new JSONObject(mJsonString);
+                JSONArray jsonArray = jsonObject.getJSONArray(TAG_JSON);
+
+                for (int i = 0; i < jsonArray.length(); i++) {
+
+                    JSONObject item = jsonArray.getJSONObject(i);
+
+                    Float humidity = Float.parseFloat(item.getString(TAG_HUMIDITY));
+
+                    recentHumidity = humidity;
+                }
+
+            } catch (JSONException e) {
+
+                Log.d(TAG, "showResult : ", e);
+            }
+        }
+        else if(data.equals("AutoYn")){
+            String TAG_JSON = "webnautes";
+            String TAG_AUTOYN = "AutoYn";
+
+            try {
+                JSONObject jsonObject = new JSONObject(mJsonString);
+                JSONArray jsonArray = jsonObject.getJSONArray(TAG_JSON);
+
+                for (int i = 0; i < jsonArray.length(); i++) {
+
+                    JSONObject item = jsonArray.getJSONObject(i);
+
+                    String AutoYn = item.getString(TAG_AUTOYN).toString();
+
+                    recentAutoYn = AutoYn;
                 }
 
             } catch (JSONException e) {

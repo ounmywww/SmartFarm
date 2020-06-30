@@ -13,56 +13,132 @@ import java.util.Calendar;
 public class MainActivity extends AppCompatActivity {
 
     private String hostName = "222.111.78.166";
-    private DbHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        dbHelper = new DbHelper(hostName);
-
         setTabText();
         setNumPicker();
+        setTempText(); // 초기 온도 설정
+        setHumText(); // 초기 습도 설정
+        setAutoYn(); // 초기 자동 설정
     }
 
     public void onButtonClick(View view){
+        DbHelper dbHelper = new DbHelper(hostName);
+
         switch (view.getId()) {
             case R.id.ButtonOpen :
+
+                dbHelper.execute("update", "DoorOpen");
+
                 break ;
             case R.id.ButtonAuto:
+                Button btn = (Button)findViewById(R.id.ButtonAuto);
+
+                dbHelper.execute("update", "AutoYn");
+
+                if(btn.getText().equals("자동")){
+                    btn.setText("수동");
+
+                    Button btnOpen = (Button)findViewById(R.id.ButtonOpen);
+                    Button btnClose = (Button)findViewById(R.id.ButtonClose);
+
+                    btnOpen.setVisibility(View.VISIBLE);
+                    btnClose.setVisibility(View.VISIBLE);
+                }
+                else{
+                    btn.setText("자동");
+
+                    Button btnOpen = (Button)findViewById(R.id.ButtonOpen);
+                    Button btnClose = (Button)findViewById(R.id.ButtonClose);
+
+                    btnOpen.setVisibility(View.GONE);
+                    btnClose.setVisibility(View.GONE);
+                }
                 break;
             case R.id.ButtonClose :
+
+                dbHelper.execute("update", "DoorClose");
+
                 break ;
+            case R.id.drawChartStart:
+
+                GraphHelper gh = new GraphHelper((LineChart)findViewById(R.id.chart));
+                ArrayList<Pair<Float, Float>> arr = new ArrayList<Pair<Float, Float>>();
+
+                dbHelper.execute("get","Temp");
+
+                gh.setMaxLimitLine(27);
+                gh.setMinLimitLine(24);
+
+                //        arr.add(new Pair(0f, 1f));
+                //        arr.add(new Pair(1f, 2f));
+                //        arr.add(new Pair(2f, 3f));
+                //        arr.add(new Pair(3f, 10f));
+                //        arr.add(new Pair(4f, 6f));
+                //        arr.add(new Pair(5f, 2f));
+                //        arr.add(new Pair(6f, 7f));
+
+                while(dbHelper.mTempList.size() == 0);
+
+                gh.addEntrys(dbHelper.mTempList);
+                //gh.addEntrys(arr);
+                gh.drawChart();
+
+                LineChart lc = (LineChart)findViewById(R.id.chart);
+                lc.setVisibility(View.VISIBLE);
+
+                break;
+        }
+    }
+    /*  온도 초기 Text */
+    void setTempText(){
+        DbHelper dbHelper = new DbHelper(hostName);
+
+        dbHelper.execute("get", "RecentTemp");
+
+        TextView tv = (TextView)findViewById(R.id.tvCal);
+
+        tv.setText("현재 온도" + " : " + dbHelper.recentTemp);
+    }
+    /* 습도 초기 Text */
+    void setHumText(){
+        DbHelper dbHelper = new DbHelper(hostName);
+
+        dbHelper.execute("get", "RecentHum");
+
+        TextView tv = (TextView)findViewById(R.id.tvHum);
+
+        tv.setText("현재 온도" + " : " + dbHelper.recentTemp);
+    }
+
+    void setAutoYn(){
+        DbHelper dbHelper = new DbHelper(hostName);
+
+        dbHelper.execute("get", "AutoYn");
+
+        if(dbHelper.recentAutoYn.equals("Y")){
+            Button btn = (Button)findViewById(R.id.ButtonAuto);
+
+            btn.setText("자동");
+
+            Button btnOpen = (Button)findViewById(R.id.ButtonOpen);
+            Button btnClose = (Button)findViewById(R.id.ButtonClose);
+
+            btnOpen.setVisibility(View.GONE);
+            btnClose.setVisibility(View.GONE);
+        }
+        else{
+            Button btn = (Button)findViewById(R.id.ButtonAuto);
+
+            btn.setText("수동");
         }
     }
 
-    public void onFindButtonClick(View view){
-        GraphHelper gh = new GraphHelper((LineChart)findViewById(R.id.chart));
-        ArrayList<Pair<Float, Float>> arr = new ArrayList<Pair<Float, Float>>();
-
-        dbHelper.execute("get","Temp");
-
-        gh.setMaxLimitLine(4);
-        gh.setMinLimitLine(3);
-
-        arr.add(new Pair(0f, 1f));
-        arr.add(new Pair(1f, 2f));
-        arr.add(new Pair(2f, 3f));
-        arr.add(new Pair(3f, 10f));
-        arr.add(new Pair(4f, 6f));
-        arr.add(new Pair(5f, 2f));
-        arr.add(new Pair(6f, 7f));
-
-        // gh.addEntrys(dbHelper.mTempList);
-        gh.addEntrys(arr);
-        gh.drawChart();
-
-        LineChart lc = (LineChart)findViewById(R.id.chart);
-        lc.setVisibility(View.VISIBLE);
-    }
-
-    public void setTabText(){
+    void setTabText(){
         TabHost tabHost1 = (TabHost) findViewById(R.id.tabHost1) ;
         tabHost1.setup() ;
 
@@ -85,7 +161,7 @@ public class MainActivity extends AppCompatActivity {
         tabHost1.addTab(ts3) ;
     }
 
-    public void setNumPicker(){
+    void setNumPicker(){
         Calendar calendar = Calendar.getInstance();
         int cYear = calendar.get(Calendar.YEAR);
         int cMonth = calendar.get(Calendar.MONTH);
