@@ -23,6 +23,7 @@ import java.util.ArrayList;
 public class DbHelper extends AsyncTask<String, Void, String>{
     private static String TAG = "phptest";
     private String mJsonString;
+    private ArrayList<Pair<String,String>> parameter;
 
     public ArrayList<Pair<Float, Float>> mTempList;
     public ArrayList<Pair<Float, Float>> mHumidityList;
@@ -50,6 +51,10 @@ public class DbHelper extends AsyncTask<String, Void, String>{
     }
 
 
+    public void setParams(ArrayList<Pair<String, String>> params){
+        this.parameter = params;
+    }
+
     public String doInBackground(String... params) {
 
         String gubun = params[0];
@@ -57,7 +62,18 @@ public class DbHelper extends AsyncTask<String, Void, String>{
 
         try
         {
-            URL url = new URL("http://" + serverURL + "/" + gubun + data + ".php");
+            String http = "http://" + serverURL + "/" + gubun + data + ".php";
+
+            if(parameter.size() > 0) http += "?";
+
+            for(int i=0; i<parameter.size(); i++){
+                http += parameter.get(i).first.toString() + parameter.get(i).second.toString();
+
+                if(i+1 != parameter.size())
+                    http += "&";
+            }
+
+            URL url = new URL(http);
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
 
 

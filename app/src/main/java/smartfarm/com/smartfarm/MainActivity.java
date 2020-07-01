@@ -69,6 +69,20 @@ public class MainActivity extends AppCompatActivity {
                 GraphHelper gh = new GraphHelper((LineChart)findViewById(R.id.chart));
                 ArrayList<Pair<Float, Float>> arr = new ArrayList<Pair<Float, Float>>();
 
+                ArrayList<Pair<String,String>> params = new ArrayList<Pair<String,String>>();
+
+                NumberPicker npYear = (NumberPicker)findViewById(R.id.numPickYear);
+                NumberPicker npMon = (NumberPicker)findViewById(R.id.numPickMon);
+                NumberPicker npDay = (NumberPicker)findViewById(R.id.numPickDay);
+
+                String timekey = Integer.toString(npYear.getValue())
+                        + Integer.toString(npMon.getValue())
+                        + Integer.toString(npDay.getValue());
+
+                params.add(new Pair<String,String>("TIMEKEY", timekey));
+
+                dbHelper.setParams(params);
+
                 dbHelper.execute("get","Temp");
 
                 gh.setMaxLimitLine(27);
