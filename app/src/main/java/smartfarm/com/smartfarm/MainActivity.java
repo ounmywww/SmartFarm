@@ -24,16 +24,23 @@ public class MainActivity extends AppCompatActivity {
         setTempText(); // 초기 온도 설정
         setHumText(); // 초기 습도 설정
         setAutoYn(); // 초기 자동 설정
+        setDoorYn(); // 초기 문 이미지 설정
     }
 
     public void onButtonClick(View view){
         DbHelper dbHelper = new DbHelper(hostName);
+        ArrayList<Pair<String,String>> params = new ArrayList<Pair<String,String>>();
+        Toast myToast;
+        ImageView imgDoor = (ImageView)findViewById(R.id.imgDoor);
 
         switch (view.getId()) {
             case R.id.ButtonOpen :
-
                 dbHelper.execute("update", "DoorOpen");
 
+                imgDoor.setImageResource(R.drawable.open);
+
+                myToast = Toast.makeText(this.getApplicationContext(), "문이 열립니다.", Toast.LENGTH_SHORT);
+                myToast.show();
                 break ;
             case R.id.ButtonAuto:
                 Button btn = (Button)findViewById(R.id.ButtonAuto);
@@ -42,6 +49,8 @@ public class MainActivity extends AppCompatActivity {
 
                 if(btn.getText().equals("자동")){
                     btn.setText("수동");
+                    myToast = Toast.makeText(this.getApplicationContext(), "수동 모드로 전환합니다.", Toast.LENGTH_SHORT);
+                    myToast.show();
 
                     Button btnOpen = (Button)findViewById(R.id.ButtonOpen);
                     Button btnClose = (Button)findViewById(R.id.ButtonClose);
@@ -51,6 +60,8 @@ public class MainActivity extends AppCompatActivity {
                 }
                 else{
                     btn.setText("자동");
+                    myToast = Toast.makeText(this.getApplicationContext(), "자동 모드로 전환합니다.", Toast.LENGTH_SHORT);
+                    myToast.show();
 
                     Button btnOpen = (Button)findViewById(R.id.ButtonOpen);
                     Button btnClose = (Button)findViewById(R.id.ButtonClose);
@@ -60,45 +71,72 @@ public class MainActivity extends AppCompatActivity {
                 }
                 break;
             case R.id.ButtonClose :
-
                 dbHelper.execute("update", "DoorClose");
+
+                imgDoor.setImageResource(R.drawable.close);
+
+                myToast = Toast.makeText(this.getApplicationContext(), "문이 닫힙니다.", Toast.LENGTH_SHORT);
+                myToast.show();
 
                 break ;
             case R.id.drawChartStart:
 
                 GraphHelper gh = new GraphHelper((LineChart)findViewById(R.id.chart));
-                ArrayList<Pair<Float, Float>> arr = new ArrayList<Pair<Float, Float>>();
-
-                ArrayList<Pair<String,String>> params = new ArrayList<Pair<String,String>>();
 
                 NumberPicker npYear = (NumberPicker)findViewById(R.id.numPickYear);
                 NumberPicker npMon = (NumberPicker)findViewById(R.id.numPickMon);
                 NumberPicker npDay = (NumberPicker)findViewById(R.id.numPickDay);
 
-                String timekey = Integer.toString(npYear.getValue())
-                        + Integer.toString(npMon.getValue())
-                        + Integer.toString(npDay.getValue());
+                String timekey = Integer.toString(npYear.getValue());
+                if(npMon.getValue() < 10)
+                    timekey += "0" + Integer.toString(npMon.getValue());
+                else
+                    timekey += Integer.toString(npMon.getValue());
+
+                if(npDay.getValue() < 10)
+                    timekey += "0" + Integer.toString(npDay.getValue());
+                else
+                    timekey += Integer.toString(npDay.getValue());
 
                 params.add(new Pair<String,String>("TIMEKEY", timekey));
 
+                dbHelper = new DbHelper(hostName);
+
                 dbHelper.setParams(params);
 
-                dbHelper.execute("get","Temp");
+                try {
+                    dbHelper.execute("get","Temp").get();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
 
-                gh.setMaxLimitLine(27);
-                gh.setMinLimitLine(24);
 
-                //        arr.add(new Pair(0f, 1f));
-                //        arr.add(new Pair(1f, 2f));
-                //        arr.add(new Pair(2f, 3f));
-                //        arr.add(new Pair(3f, 10f));
-                //        arr.add(new Pair(4f, 6f));
-                //        arr.add(new Pair(5f, 2f));
-                //        arr.add(new Pair(6f, 7f));
-
-                while(dbHelper.mTempList.size() == 0);
+                if(dbHelper.mTempList.size() == 0) {
+                    myToast = Toast.makeText(this.getApplicationContext(), "조회 날짜에 데이터가 없습니다.", Toast.LENGTH_SHORT);
+                    myToast.show();
+                    return;
+                }
 
                 gh.addEntrys(dbHelper.mTempList);
+
+                dbHelper = new DbHelper(hostName);
+                try{
+                    dbHelper.execute("get", "MaxTemp").get();
+                } catch(Exception e){
+                    e.printStackTrace();
+                }
+
+                gh.setMaxLimitLine(dbHelper.maxTemp);
+
+                dbHelper = new DbHelper(hostName);
+                try {
+                    dbHelper.execute("get", "MinTemp").get();
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+
+                gh.setMinLimitLine(dbHelper.minTemp);
+
                 //gh.addEntrys(arr);
                 gh.drawChart();
 
@@ -106,17 +144,44 @@ public class MainActivity extends AppCompatActivity {
                 lc.setVisibility(View.VISIBLE);
 
                 break;
+            case R.id.btnMinSave:
+                NumberPicker npMinTemp = (NumberPicker)findViewById(R.id.numPickMin);
+
+                String minTemp = Integer.toString(npMinTemp.getValue());
+
+                params.add(new Pair<String, String>("minTemp", minTemp));
+
+                dbHelper.setParams(params);
+
+                dbHelper.execute("update", "MinTemp");
+
+                break;
+            case R.id.btnMaxSave:
+                NumberPicker npMaxTemp = (NumberPicker)findViewById(R.id.numPickMax);
+
+                String maxTemp = Integer.toString(npMaxTemp.getValue());
+
+                params.add(new Pair<String, String>("maxTemp", maxTemp));
+
+                dbHelper.setParams(params);
+
+                dbHelper.execute("update", "MaxTemp");
+
+                break;
         }
     }
+
     /*  온도 초기 Text */
     void setTempText(){
         DbHelper dbHelper = new DbHelper(hostName);
 
         dbHelper.execute("get", "RecentTemp");
 
+        while(dbHelper.recentTemp == -1);
+
         TextView tv = (TextView)findViewById(R.id.tvCal);
 
-        tv.setText("현재 온도" + " : " + dbHelper.recentTemp);
+        tv.setText("현재 온도" + " : " + dbHelper.recentTemp + "℃");
     }
     /* 습도 초기 Text */
     void setHumText(){
@@ -124,15 +189,19 @@ public class MainActivity extends AppCompatActivity {
 
         dbHelper.execute("get", "RecentHum");
 
+        while(dbHelper.recentHumidity == -1);
+
         TextView tv = (TextView)findViewById(R.id.tvHum);
 
-        tv.setText("현재 온도" + " : " + dbHelper.recentTemp);
+        tv.setText("현재 온도" + " : " + dbHelper.recentHumidity + "%");
     }
 
     void setAutoYn(){
         DbHelper dbHelper = new DbHelper(hostName);
 
         dbHelper.execute("get", "AutoYn");
+
+        while(dbHelper.recentAutoYn.equals("-1"));
 
         if(dbHelper.recentAutoYn.equals("Y")){
             Button btn = (Button)findViewById(R.id.ButtonAuto);
@@ -149,6 +218,25 @@ public class MainActivity extends AppCompatActivity {
             Button btn = (Button)findViewById(R.id.ButtonAuto);
 
             btn.setText("수동");
+        }
+    }
+
+    void setDoorYn(){
+        DbHelper dbHelper = new DbHelper(hostName);
+
+        try {
+            dbHelper.execute("get", "DoorYn").get();
+        }catch(Exception ex){
+            ex.printStackTrace();
+        }
+
+        ImageView imgDoor = (ImageView)findViewById(R.id.imgDoor);
+
+        if(dbHelper.recentDoorYn.equals("Y")){
+            imgDoor.setImageResource(R.drawable.open);
+        }
+        else{
+            imgDoor.setImageResource(R.drawable.close);
         }
     }
 
@@ -182,20 +270,32 @@ public class MainActivity extends AppCompatActivity {
         int cDay = calendar.get(Calendar.DAY_OF_MONTH);
 
         /* SET MAX */
+        DbHelper dbHelper = new DbHelper(hostName);
+
+        dbHelper.execute("get", "MaxTemp");
+
+        while(dbHelper.maxTemp == -1);
+
         NumberPicker npMax = (NumberPicker) findViewById(R.id.numPickMax);
         npMax.setMinValue(1);
         npMax.setMaxValue(50);
         npMax.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
         npMax.setWrapSelectorWheel(false);
-        npMax.setValue(23);
+        npMax.setValue(dbHelper.maxTemp);
 
         /* SET MIN*/
+        dbHelper = new DbHelper(hostName);
+
+        dbHelper.execute("get", "MinTemp");
+
+        while(dbHelper.minTemp == -1);
+
         NumberPicker npMin = (NumberPicker) findViewById(R.id.numPickMin);
         npMin.setMinValue(1);
         npMin.setMaxValue(50);
         npMin.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
         npMin.setWrapSelectorWheel(false);
-        npMin.setValue(23);
+        npMin.setValue(dbHelper.minTemp);
 
         /* SET YEAR */
         NumberPicker npYear = (NumberPicker) findViewById(R.id.numPickYear);

@@ -50,10 +50,10 @@ public class GraphHelper {
 
     private void setChart(){
         lineDataSet.setColors(ColorTemplate.COLORFUL_COLORS);
-        lineDataSet.setDrawFilled(true); //그래프 밑부분 색칠
+        lineDataSet.setDrawFilled(false); //그래프 밑부분 색칠
         lineDataSet.setLineWidth(2);
-        lineDataSet.setCircleRadius(6);
-        lineDataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+        lineDataSet.setCircleRadius(3);
+        lineDataSet.setMode(LineDataSet.Mode.LINEAR);
     }
 
     /* 온도 데이터들 모임 */
@@ -74,11 +74,10 @@ public class GraphHelper {
 
     public void drawChart(){
         lineChart.clear();
+        lineChart.getAxisLeft().removeAllLimitLines();
         setChart();
 
         lineData = new LineData(lineDataSet);
-
-        lineChart.setData(lineData);
 
         XAxis xAxis = lineChart.getXAxis();
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
@@ -89,10 +88,10 @@ public class GraphHelper {
 
         YAxis yAxis = lineChart.getAxisRight();
         YAxis yAxisLeft = lineChart.getAxisLeft();
-        yAxisLeft.setEnabled(false);
+        yAxis.setEnabled(false);
 
-        float min = Float.MAX_VALUE;
-        float max = Float.MIN_VALUE;
+        float min = minLimitLine.getLimit();
+        float max = maxLimitLine.getLimit();
 
         // first : X축의 값
         // second : Y축의 값
@@ -101,21 +100,27 @@ public class GraphHelper {
             max = arrayList.get(i).second <  max ?  max : arrayList.get(i).second;
         }
 
-        yAxis.setAxisMinimum(min*1.2f);
-        yAxis.setAxisMaximum(max*1.2f);
-        yAxis.setTextColor(Color.BLACK);
+        yAxisLeft.setSpaceBottom(50);
+        yAxisLeft.setSpaceTop(50);
+//        yAxisLeft.setAxisMaximum(max*1.1f);
+//        yAxisLeft.setAxisMinimum(min*1.1f);
+        yAxisLeft.setLabelCount(10);
+        yAxisLeft.setTextColor(Color.BLACK);
+//        yAxisLeft.setDrawGridLines(true);
 
-        if(maxLimitLine != null || minLimitLine != null) {
-            yAxis.removeAllLimitLines();
-        }
+        yAxisLeft.removeAllLimitLines();
+        yAxisLeft.setDrawLimitLinesBehindData(true);
 
         if(maxLimitLine != null){
-            yAxis.addLimitLine(maxLimitLine);
+            yAxisLeft.addLimitLine(maxLimitLine);
         }
 
         if(minLimitLine != null){
-            yAxis.addLimitLine(minLimitLine);
+            yAxisLeft.addLimitLine(minLimitLine);
         }
+
+
+        lineChart.setData(lineData);
 
         lineChart.setDoubleTapToZoomEnabled(false);
     }

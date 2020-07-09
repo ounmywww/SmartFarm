@@ -31,8 +31,11 @@ public class DbHelper extends AsyncTask<String, Void, String>{
 
     public float recentTemp;
     public float recentHumidity;
+    public int maxTemp;
+    public int minTemp;
 
     public String recentAutoYn;
+    public String recentDoorYn;
 
     String serverURL = "";
     String postParameters = "";
@@ -47,12 +50,20 @@ public class DbHelper extends AsyncTask<String, Void, String>{
         mHumidityList = new ArrayList<Pair<Float, Float>>();
         mOpenList = new ArrayList<Pair<Float, Integer>>();
 
+        recentTemp = -1;
+        recentHumidity = -1;
+        recentAutoYn = "-1";
+        maxTemp = -1;
+        minTemp = -1;
+
+        this.parameter = new ArrayList<Pair<String, String>>();
+
         this.serverURL = hostUrl;
     }
 
 
     public void setParams(ArrayList<Pair<String, String>> params){
-        this.parameter = params;
+        this.parameter = new ArrayList<Pair<String, String>>(params);
     }
 
     public String doInBackground(String... params) {
@@ -62,12 +73,12 @@ public class DbHelper extends AsyncTask<String, Void, String>{
 
         try
         {
-            String http = "http://" + serverURL + "/" + gubun + data + ".php";
+            String http = "http://" + serverURL + "/android/" + gubun + data + ".php";
 
             if(parameter.size() > 0) http += "?";
 
             for(int i=0; i<parameter.size(); i++){
-                http += parameter.get(i).first.toString() + parameter.get(i).second.toString();
+                http += parameter.get(i).first.toString() + "=" + parameter.get(i).second.toString();
 
                 if(i+1 != parameter.size())
                     http += "&";
@@ -137,6 +148,10 @@ public class DbHelper extends AsyncTask<String, Void, String>{
         mHumidityList.clear();
         mOpenList.clear();
 
+        if(mJsonString.isEmpty() == true){
+            return;
+        }
+
         // 온도 데이터 가져오기
         if(data.equals("Temp")) {
             String TAG_JSON = "webnautes";
@@ -163,6 +178,7 @@ public class DbHelper extends AsyncTask<String, Void, String>{
                     mHumidityList.add(new Pair<Float, Float>(hours, humidity));
                     mOpenList.add(new Pair<Float, Integer>(hours, cntOpen));
                 }
+
 
             } catch (JSONException e) {
 
@@ -193,7 +209,7 @@ public class DbHelper extends AsyncTask<String, Void, String>{
         }
         else if(data.equals("RecentHum")){
             String TAG_JSON = "webnautes";
-            String TAG_HUMIDITY = "Humidity";
+            String TAG_HUMIDITY = "HUMIDITY";
 
             try {
                 JSONObject jsonObject = new JSONObject(mJsonString);
@@ -215,7 +231,7 @@ public class DbHelper extends AsyncTask<String, Void, String>{
         }
         else if(data.equals("AutoYn")){
             String TAG_JSON = "webnautes";
-            String TAG_AUTOYN = "AutoYn";
+            String TAG_AUTOYN = "GTS_GRP1";
 
             try {
                 JSONObject jsonObject = new JSONObject(mJsonString);
@@ -228,6 +244,72 @@ public class DbHelper extends AsyncTask<String, Void, String>{
                     String AutoYn = item.getString(TAG_AUTOYN).toString();
 
                     recentAutoYn = AutoYn;
+                }
+
+            } catch (JSONException e) {
+
+                Log.d(TAG, "showResult : ", e);
+            }
+        }
+        else if(data.equals("DoorYn")){
+            String TAG_JSON = "webnautes";
+            String TAG_AUTOYN = "GTS_GRP1";
+
+            try {
+                JSONObject jsonObject = new JSONObject(mJsonString);
+                JSONArray jsonArray = jsonObject.getJSONArray(TAG_JSON);
+
+                for (int i = 0; i < jsonArray.length(); i++) {
+
+                    JSONObject item = jsonArray.getJSONObject(i);
+
+                    String DoorYn = item.getString(TAG_AUTOYN).toString();
+
+                    recentDoorYn = DoorYn;
+                }
+
+            } catch (JSONException e) {
+
+                Log.d(TAG, "showResult : ", e);
+            }
+        }
+        else if(data.equals("MaxTemp")){
+            String TAG_JSON = "webnautes";
+            String TAG_MAXTEMP = "GTS_GRP1";
+
+            try {
+                JSONObject jsonObject = new JSONObject(mJsonString);
+                JSONArray jsonArray = jsonObject.getJSONArray(TAG_JSON);
+
+                for (int i = 0; i < jsonArray.length(); i++) {
+
+                    JSONObject item = jsonArray.getJSONObject(i);
+
+                    String getMaxTemp = item.getString(TAG_MAXTEMP).toString();
+
+                    maxTemp = Integer.parseInt(getMaxTemp);
+                }
+
+            } catch (JSONException e) {
+
+                Log.d(TAG, "showResult : ", e);
+            }
+        }
+        else if(data.equals("MinTemp")){
+            String TAG_JSON = "webnautes";
+            String TAG_MINTEMP = "GTS_GRP1";
+
+            try {
+                JSONObject jsonObject = new JSONObject(mJsonString);
+                JSONArray jsonArray = jsonObject.getJSONArray(TAG_JSON);
+
+                for (int i = 0; i < jsonArray.length(); i++) {
+
+                    JSONObject item = jsonArray.getJSONObject(i);
+
+                    String getMinTemp = item.getString(TAG_MINTEMP).toString();
+
+                    minTemp = Integer.parseInt(getMinTemp);
                 }
 
             } catch (JSONException e) {

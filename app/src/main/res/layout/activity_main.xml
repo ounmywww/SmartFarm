@@ -68,9 +68,10 @@
                         <ImageView
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:layout_weight="8"
+                            android:layout_weight="6"
                             android:id="@+id/imgDoor"
-                            android:gravity="center" />
+                            android:gravity="center"
+                            android:src="@drawable/open"/>
                     </LinearLayout>
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -209,7 +210,9 @@
                             android:layout_height="match_parent"
                             android:layout_weight="5"
                             android:height="40dp"
-                            android:text="저장"/>
+                            android:text="저장"
+                            android:onClick="onButtonClick"
+                            android:id="@+id/btnMinSave"/>
                     </LinearLayout>
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -242,7 +245,9 @@
                             android:layout_height="match_parent"
                             android:layout_weight="5"
                             android:height="40dp"
-                            android:text="저장"/>
+                            android:text="저장"
+                            android:onClick="onButtonClick"
+                            android:id="@+id/btnMaxSave"/>
                     </LinearLayout>
                 </LinearLayout>
             </FrameLayout>
