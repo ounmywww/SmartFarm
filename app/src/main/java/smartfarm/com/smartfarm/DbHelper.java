@@ -24,6 +24,7 @@ public class DbHelper extends AsyncTask<String, Void, String>{
     private static String TAG = "phptest";
     private String mJsonString;
     private ArrayList<Pair<String,String>> parameter;
+    public String farmId;
 
     public ArrayList<Pair<Float, Float>> mTempList;
     public ArrayList<Pair<Float, Float>> mHumidityList;
@@ -42,23 +43,16 @@ public class DbHelper extends AsyncTask<String, Void, String>{
 
     String errorString = null;
 
-    DbHelper(String hostUrl){
-        serverURL = new String();
-        postParameters = new String();
+    DbHelper(String hostUrl, String farmId){
+        this.serverURL = new String();
+        this.postParameters = new String();
 
-        mTempList = new ArrayList<Pair<Float, Float>>();
-        mHumidityList = new ArrayList<Pair<Float, Float>>();
-        mOpenList = new ArrayList<Pair<Float, Integer>>();
-
-        recentTemp = -1;
-        recentHumidity = -1;
-        recentAutoYn = "-1";
-        maxTemp = -1;
-        minTemp = -1;
-
+        this.mTempList = new ArrayList<Pair<Float, Float>>();
+        this.mHumidityList = new ArrayList<Pair<Float, Float>>();
+        this.mOpenList = new ArrayList<Pair<Float, Integer>>();
         this.parameter = new ArrayList<Pair<String, String>>();
-
         this.serverURL = hostUrl;
+        this.farmId = farmId;
     }
 
 
@@ -73,9 +67,9 @@ public class DbHelper extends AsyncTask<String, Void, String>{
 
         try
         {
-            String http = "http://" + serverURL + "/android/" + gubun + data + ".php";
+            String http = "http://" + serverURL + "/android/" + gubun + data + ".php?farmId="+this.farmId;
 
-            if(parameter.size() > 0) http += "?";
+            if(parameter.size() > 0) http += "&";
 
             for(int i=0; i<parameter.size(); i++){
                 http += parameter.get(i).first.toString() + "=" + parameter.get(i).second.toString();
@@ -83,6 +77,8 @@ public class DbHelper extends AsyncTask<String, Void, String>{
                 if(i+1 != parameter.size())
                     http += "&";
             }
+
+            System.out.println(http);
 
             URL url = new URL(http);
             HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
@@ -310,6 +306,26 @@ public class DbHelper extends AsyncTask<String, Void, String>{
                     String getMinTemp = item.getString(TAG_MINTEMP).toString();
 
                     minTemp = Integer.parseInt(getMinTemp);
+                }
+
+            } catch (JSONException e) {
+
+                Log.d(TAG, "showResult : ", e);
+            }
+        }
+        else if(data.equals("FarmId")){
+            String TAG_JSON = "webnautes";
+            String TAG_FARM_ID = "FARM_ID";
+
+            try {
+                JSONObject jsonObject = new JSONObject(mJsonString);
+                JSONArray jsonArray = jsonObject.getJSONArray(TAG_JSON);
+
+                for (int i = 0; i < jsonArray.length(); i++) {
+
+                    JSONObject item = jsonArray.getJSONObject(i);
+
+                    farmId = item.getString(TAG_FARM_ID).toString();
                 }
 
             } catch (JSONException e) {

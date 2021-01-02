@@ -102,8 +102,9 @@ public class GraphHelper {
 
         yAxisLeft.setSpaceBottom(50);
         yAxisLeft.setSpaceTop(50);
-//        yAxisLeft.setAxisMaximum(max*1.1f);
-//        yAxisLeft.setAxisMinimum(min*1.1f);
+        yAxisLeft.setAxisMinValue(min*1.1f);
+        yAxisLeft.setAxisMaxValue(max*1.1f);
+        yAxisLeft.setStartAtZero(false);
         yAxisLeft.setLabelCount(10);
         yAxisLeft.setTextColor(Color.BLACK);
 //        yAxisLeft.setDrawGridLines(true);

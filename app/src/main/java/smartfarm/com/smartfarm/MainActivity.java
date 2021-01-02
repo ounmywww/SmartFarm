@@ -1,7 +1,14 @@
 package smartfarm.com.smartfarm;
 
+import android.Manifest;
+import android.content.DialogInterface;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.telephony.TelephonyManager;
 import android.view.View;
 import android.widget.*;
 
@@ -12,11 +19,60 @@ import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity {
 
-    private String hostName = "222.111.78.166";
+    private String hostName = "125.129.2.104";
+    private String numId;
+    private String farmId;
+    private TelephonyManager telManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        telManager = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
+
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.READ_PHONE_STATE)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.READ_PHONE_STATE},
+                    0);
+        }
+
+
+        numId = telManager.getLine1Number().toString();
+        numId = numId.substring(numId.length()-4, numId.length());
+
+        DbHelper dbHelper = new DbHelper(hostName, null);
+
+        ArrayList<Pair<String,String>> params = new ArrayList<Pair<String,String>>();
+        params.add(new Pair<String,String>("numId", numId));
+        dbHelper.setParams(params);
+
+        try {
+            dbHelper.execute("get", "FarmId").get();
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+        if(dbHelper.farmId == null){
+            AlertDialog.Builder myAlertBuilder = new AlertDialog.Builder(MainActivity.this);
+
+            myAlertBuilder.setTitle("Alert");
+            myAlertBuilder.setMessage("등록되지 않은 사용자입니다.");
+            // 버튼 추가 (Ok 버튼과 Cancle 버튼 )
+            myAlertBuilder.setPositiveButton("Ok",new DialogInterface.OnClickListener(){
+                public void onClick(DialogInterface dialog,int which){
+                    System.exit(0);
+                }
+            });
+
+            myAlertBuilder.create().show();
+            return;
+        }
+        else{
+            this.farmId = dbHelper.farmId;
+        }
+
         setContentView(R.layout.activity_main);
 
         setTabText();
@@ -28,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onButtonClick(View view){
-        DbHelper dbHelper = new DbHelper(hostName);
+        DbHelper dbHelper = new DbHelper(hostName, farmId);
         ArrayList<Pair<String,String>> params = new ArrayList<Pair<String,String>>();
         Toast myToast;
         ImageView imgDoor = (ImageView)findViewById(R.id.imgDoor);
@@ -98,9 +154,9 @@ public class MainActivity extends AppCompatActivity {
                 else
                     timekey += Integer.toString(npDay.getValue());
 
-                params.add(new Pair<String,String>("TIMEKEY", timekey));
+                params.add(new Pair<String,String>("timekey", timekey));
 
-                dbHelper = new DbHelper(hostName);
+                dbHelper = new DbHelper(hostName, farmId);
 
                 dbHelper.setParams(params);
 
@@ -119,7 +175,7 @@ public class MainActivity extends AppCompatActivity {
 
                 gh.addEntrys(dbHelper.mTempList);
 
-                dbHelper = new DbHelper(hostName);
+                dbHelper = new DbHelper(hostName, farmId);
                 try{
                     dbHelper.execute("get", "MaxTemp").get();
                 } catch(Exception e){
@@ -128,7 +184,7 @@ public class MainActivity extends AppCompatActivity {
 
                 gh.setMaxLimitLine(dbHelper.maxTemp);
 
-                dbHelper = new DbHelper(hostName);
+                dbHelper = new DbHelper(hostName, farmId);
                 try {
                     dbHelper.execute("get", "MinTemp").get();
                 }catch (Exception e){
@@ -155,6 +211,9 @@ public class MainActivity extends AppCompatActivity {
 
                 dbHelper.execute("update", "MinTemp");
 
+                myToast = Toast.makeText(this.getApplicationContext(), "최저온도가 " + minTemp + "°C 로 설정되었습니다.", Toast.LENGTH_SHORT);
+                myToast.show();
+
                 break;
             case R.id.btnMaxSave:
                 NumberPicker npMaxTemp = (NumberPicker)findViewById(R.id.numPickMax);
@@ -167,17 +226,22 @@ public class MainActivity extends AppCompatActivity {
 
                 dbHelper.execute("update", "MaxTemp");
 
+                myToast = Toast.makeText(this.getApplicationContext(), "최고온도가 " + maxTemp + "°C 로 설정되었습니다.", Toast.LENGTH_SHORT);
+                myToast.show();
+
                 break;
         }
     }
 
     /*  온도 초기 Text */
     void setTempText(){
-        DbHelper dbHelper = new DbHelper(hostName);
+        DbHelper dbHelper = new DbHelper(hostName, farmId);
 
-        dbHelper.execute("get", "RecentTemp");
-
-        while(dbHelper.recentTemp == -1);
+        try {
+            dbHelper.execute("get", "RecentTemp").get();
+        }catch(Exception e){
+            e.printStackTrace();
+        }
 
         TextView tv = (TextView)findViewById(R.id.tvCal);
 
@@ -185,23 +249,27 @@ public class MainActivity extends AppCompatActivity {
     }
     /* 습도 초기 Text */
     void setHumText(){
-        DbHelper dbHelper = new DbHelper(hostName);
+        DbHelper dbHelper = new DbHelper(hostName, farmId);
 
-        dbHelper.execute("get", "RecentHum");
-
-        while(dbHelper.recentHumidity == -1);
+        try {
+            dbHelper.execute("get", "RecentHum").get();
+        }catch(Exception e){
+            e.printStackTrace();
+        }
 
         TextView tv = (TextView)findViewById(R.id.tvHum);
 
-        tv.setText("현재 온도" + " : " + dbHelper.recentHumidity + "%");
+        tv.setText("현재 습도" + " : " + dbHelper.recentHumidity + "%");
     }
 
     void setAutoYn(){
-        DbHelper dbHelper = new DbHelper(hostName);
+        DbHelper dbHelper = new DbHelper(hostName, farmId);
 
-        dbHelper.execute("get", "AutoYn");
-
-        while(dbHelper.recentAutoYn.equals("-1"));
+        try {
+            dbHelper.execute("get", "AutoYn").get();
+        }catch(Exception e){
+            e.printStackTrace();
+        }
 
         if(dbHelper.recentAutoYn.equals("Y")){
             Button btn = (Button)findViewById(R.id.ButtonAuto);
@@ -222,7 +290,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void setDoorYn(){
-        DbHelper dbHelper = new DbHelper(hostName);
+        DbHelper dbHelper = new DbHelper(hostName, farmId);
 
         try {
             dbHelper.execute("get", "DoorYn").get();
@@ -270,11 +338,15 @@ public class MainActivity extends AppCompatActivity {
         int cDay = calendar.get(Calendar.DAY_OF_MONTH);
 
         /* SET MAX */
-        DbHelper dbHelper = new DbHelper(hostName);
+        DbHelper dbHelper = new DbHelper(hostName, farmId);
 
-        dbHelper.execute("get", "MaxTemp");
+        try {
+            dbHelper.execute("get", "MaxTemp").get();
+        }catch(Exception ex){
+            ex.printStackTrace();
+        }
 
-        while(dbHelper.maxTemp == -1);
+        //while(dbHelper.maxTemp == -1);
 
         NumberPicker npMax = (NumberPicker) findViewById(R.id.numPickMax);
         npMax.setMinValue(1);
@@ -284,11 +356,15 @@ public class MainActivity extends AppCompatActivity {
         npMax.setValue(dbHelper.maxTemp);
 
         /* SET MIN*/
-        dbHelper = new DbHelper(hostName);
+        dbHelper = new DbHelper(hostName, farmId);
 
-        dbHelper.execute("get", "MinTemp");
+        try {
+            dbHelper.execute("get", "MinTemp").get();
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
 
-        while(dbHelper.minTemp == -1);
+        //while(dbHelper.minTemp == -1);
 
         NumberPicker npMin = (NumberPicker) findViewById(R.id.numPickMin);
         npMin.setMinValue(1);

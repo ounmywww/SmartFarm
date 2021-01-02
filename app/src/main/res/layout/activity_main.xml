@@ -190,7 +190,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:layout_weight="5"
-                            android:text="최소\n온도"
+                            android:text="최저\n온도"
                             android:textSize="20dp"
                             android:gravity="center"
                             />
@@ -225,7 +225,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:layout_weight="5"
-                            android:text="최대\n온도"
+                            android:text="최고\n온도"
                             android:textSize="20dp"
                             android:gravity="center"
                             />
